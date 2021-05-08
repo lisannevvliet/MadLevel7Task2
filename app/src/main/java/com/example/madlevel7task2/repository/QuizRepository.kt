@@ -35,7 +35,7 @@ class QuizRepository {
     // Retrieve a quiz from Firestore.
     suspend fun getQuiz(document: String) {
         try {
-            withTimeout(5000) {
+            //withTimeout(5000) {
                 val quiz = firestore.collection("quizzes").document(document).get().await()
 
                 val question = quiz.getString("question").toString()
@@ -45,7 +45,7 @@ class QuizRepository {
                 val correctAnswer = quiz.getString("correctAnswer").toString()
 
                 _quiz.value = Quiz(question, firstAnswer, secondAnswer, thirdAnswer, correctAnswer)
-            }
+            //}
         } catch (e: Exception) {
             throw QuizRetrievalError("Retrieval-firebase-task was unsuccessful")
         }

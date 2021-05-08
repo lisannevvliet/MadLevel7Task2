@@ -49,6 +49,8 @@ class QuizFragment : Fragment() {
     // Upon a change in the LiveData, bind the ImageView and TextViews to the corresponding building picture, progress indicator, question and answers.
     private fun observeQuiz() {
         viewModel.quiz.observe(viewLifecycleOwner, {
+            Toast.makeText(context, "LiveData triggered: ${it.question}", Toast.LENGTH_LONG).show()
+
             val building = resources.getIdentifier("building${progress}", "drawable", activity?.packageName)
             binding.ivBuilding.setImageResource(building)
             binding.tvProgress.text = getString(R.string.progress, progress.toString(), "5")
@@ -76,7 +78,6 @@ class QuizFragment : Fragment() {
 
                 if (progress <= 5) {
                     viewModel.getQuiz(progress.toString())
-                    observeQuiz()
                 } else {
                     Toast.makeText(context, "Quiz Completed", Toast.LENGTH_LONG).show()
                     findNavController().popBackStack()
