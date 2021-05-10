@@ -8,6 +8,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeout
 
 class QuizRepository {
+
     // Get an instance of Firestore.
     private var firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
