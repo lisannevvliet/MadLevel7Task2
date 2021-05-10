@@ -20,9 +20,6 @@ class StartFragment : Fragment() {
 
     private val viewModel: QuizViewModel by activityViewModels()
 
-    // Get an instance of Firestore.
-    //private var firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
@@ -46,12 +43,6 @@ class StartFragment : Fragment() {
 
     // Create five quizzes.
     private fun createQuizzes() {
-        // Delete all previously created quizzes.
-        /*for (i in 1..5) {
-            firestore.collection("quizzes").document(i.toString()).delete()
-            Toast.makeText(activity, "Quiz deleted.", Toast.LENGTH_LONG).show()
-        }*/
-
         viewModel.createQuiz("1", "Who is the co-founder of Android?", "Andy Rubin", "Larry Page & Sergey Brin", "Sundar Pichai", "Andy Rubin")
         viewModel.createQuiz("2", "What was the initial name of Elon Musk's child?", "X Æ A-Xii", "X AE A-XII", "X Æ A-12", "X Æ A-12")
         viewModel.createQuiz("3", "In which year was Apple founded?", "1982", "1976", "1993", "1976")
@@ -59,10 +50,10 @@ class StartFragment : Fragment() {
         viewModel.createQuiz("5", "What was Steve Jobs' cause of death?", "Amyotrophic lateral sclerosis (ALS)", "Dementia", "Neuroendocrine cancer", "Neuroendocrine cancer")
     }
 
-    // Display a Toast message which tells the user whether the profile was successfully created.
+    // Display a Toast message if the quiz was not successfully created.
     private fun observeQuizCreation() {
         viewModel.createSuccess.observe(viewLifecycleOwner, {
-            //Toast.makeText(activity, "Quizzes created", Toast.LENGTH_LONG).show()
+            // Toast.makeText(activity, "Quizzes created", Toast.LENGTH_LONG).show()
         })
 
         viewModel.errorText.observe(viewLifecycleOwner, {

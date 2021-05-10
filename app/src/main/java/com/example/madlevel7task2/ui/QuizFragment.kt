@@ -49,9 +49,8 @@ class QuizFragment : Fragment() {
     // Upon a change in the LiveData, bind the ImageView and TextViews to the corresponding building picture, progress indicator, question and answers.
     private fun observeQuiz() {
         viewModel.quiz.observe(viewLifecycleOwner, {
-            Toast.makeText(context, "LiveData triggered: ${it.question}", Toast.LENGTH_LONG).show()
-
             val building = resources.getIdentifier("building${progress}", "drawable", activity?.packageName)
+
             binding.ivBuilding.setImageResource(building)
             binding.tvProgress.text = getString(R.string.progress, progress.toString(), "5")
             binding.tvQuestion.text = it.question
@@ -65,6 +64,7 @@ class QuizFragment : Fragment() {
     private fun onConfirm() {
         // Check if any RadioButton is selected.
         val id: Int = binding.rgAnswers.checkedRadioButtonId
+
         if (id != -1) {
             // Get the instance of RadioButton.
             val radio: RadioButton = requireView().findViewById(id)
