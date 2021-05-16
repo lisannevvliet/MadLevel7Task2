@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.madlevel7task2.model.Quiz
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeout
 
 class QuizRepository {
@@ -12,47 +11,55 @@ class QuizRepository {
     // Get an instance of Firestore.
     private var firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    private val _quiz: MutableLiveData<Quiz> = MutableLiveData()
-    val quiz: LiveData<Quiz>
-    get() = _quiz
+    // Initialize the LiveData in which the quizzes will be stored.
+    private val _quizzes: MutableLiveData<ArrayList<Quiz>> = MutableLiveData()
+    val quizzes: LiveData<ArrayList<Quiz>> get() = _quizzes
 
-    private val _createSuccess: MutableLiveData<Boolean> = MutableLiveData()
-    val createSuccess: LiveData<Boolean>
-    get() = _createSuccess
+    // Initialize the LiveData in which the exceptions will be stored.
+    private var _exception: MutableLiveData<String> = MutableLiveData()
+    val exception: LiveData<String> get() = _exception
 
     // Persist a quiz to Firestore.
-    suspend fun createQuiz(document: String, quiz: Quiz) {
+    suspend fun createQuiz(document: Int, quiz: Quiz) {
         try {
             withTimeout(5000) {
-                firestore.collection("quizzes").document(document).set(quiz)
-
-                _createSuccess.value = true
+                // Delete the previously created quiz.
+                firestore.collection("quizzes").document(document.toString()).delete()
+                // Create a new quiz.
+                firestore.collection("quizzes").document(document.toString()).set(quiz)
+                }
+            } catch (exception: Exception) {
+                _exception.value = "Something went wrong while saving quiz."
             }
-        } catch (e: Exception) {
-            throw QuizSaveError(e.message.toString(), e)
         }
-    }
 
-    // Retrieve a quiz from Firestore.
-    suspend fun getQuiz(document: String) {
+    // Retrieve the quizzes from Firestore.
+    suspend fun getQuizzes() {
         try {
-            // withTimeout(5000) {
-                val quiz = firestore.collection("quizzes").document(document).get().await()
+            withTimeout(5000) {
+                // Listen to the Firestore quizzes collection.
+                firestore.collection("quizzes").addSnapshotListener { snapshot, exception ->
+                    val quizzes = ArrayList<Quiz>()
 
-                val question = quiz.getString("question").toString()
-                val firstAnswer = quiz.getString("firstAnswer").toString()
-                val secondAnswer = quiz.getString("secondAnswer").toString()
-                val thirdAnswer = quiz.getString("thirdAnswer").toString()
-                val correctAnswer = quiz.getString("correctAnswer").toString()
+                    if (snapshot != null) {
+                        // Add all quizzes from the Firestore quizzes collection to the list.
+                        for (document in snapshot.documents) {
+                            val quiz = document.toObject(Quiz::class.java)
 
-                _quiz.value = Quiz(question, firstAnswer, secondAnswer, thirdAnswer, correctAnswer)
-            // }
-        } catch (e: Exception) {
-            throw QuizRetrievalError("Retrieval-firebase-task was unsuccessful")
+                            if (quiz != null) {
+                                quizzes.add(quiz)
+                            }
+                        }
+
+                        // Store the quizzes in the corresponding LiveData.
+                        _quizzes.value = quizzes
+                    } else if (exception != null) {
+                        _exception.value = "Something went wrong while retrieving quiz."
+                    }
+                }
+            }
+        } catch (exception: Exception) {
+            _exception.value = "Something went wrong while retrieving quiz."
         }
     }
-
-    // Create the errors for when a quiz can not be saved or retrieved.
-    class QuizSaveError(message: String, cause: Throwable) : Exception(message, cause)
-    class QuizRetrievalError(message: String) : Exception(message)
 }

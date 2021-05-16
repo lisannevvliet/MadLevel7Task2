@@ -3,6 +3,6 @@
     <string name="welcome">Welcome to the HvA Locations Quest</string>
     <string name="instructions">After pressing start you will start the quest. After each question a picture of a HvA building is shown. Go to the building and start the next question. At the end there will be a prize waiting for you!</string>
     <string name="start_quest">Start quest</string>
+    <string name="index">%d/%d</string>
     <string name="confirm">Confirm</string>
-    <string name="progress">%s/%s</string>
 </resources>

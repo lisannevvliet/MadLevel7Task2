@@ -1,10 +1,8 @@
 package com.example.madlevel7task2.vm
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.madlevel7task2.model.Quiz
 import com.example.madlevel7task2.repository.QuizRepository
@@ -12,47 +10,27 @@ import kotlinx.coroutines.launch
 
 class QuizViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val TAG = "FIRESTORE"
     private val quizRepository: QuizRepository = QuizRepository()
 
-    val quiz: LiveData<Quiz> = quizRepository.quiz
+    // Retrieve the LiveData with the quizzes and exceptions from the QuizRepository.
+    val quizzes: LiveData<ArrayList<Quiz>> = quizRepository.quizzes
+    val exception: LiveData<String> = quizRepository.exception
 
-    val createSuccess: LiveData<Boolean> = quizRepository.createSuccess
-
-    private val _errorText: MutableLiveData<String> = MutableLiveData()
-    val errorText: LiveData<String>
-    get() = _errorText
-
-    // Persist a quiz to Firestore.
-    fun createQuiz(document: String, question: String, firstAnswer: String, secondAnswer: String, thirdAnswer: String, correctAnswer: String) {
-        val quiz = Quiz(question, firstAnswer, secondAnswer, thirdAnswer, correctAnswer)
-
+    // Persist the quizzes to Firestore.
+    fun createQuizzes() {
         viewModelScope.launch {
-            try {
-                quizRepository.createQuiz(document, quiz)
-            } catch (ex: QuizRepository.QuizSaveError) {
-                val errorMsg = "Something went wrong while saving quiz."
-                Log.e(TAG, ex.message ?: errorMsg)
-                _errorText.value = errorMsg
-            }
+            quizRepository.createQuiz(1, Quiz("Who is the co-founder of Android?", arrayListOf("Andy Rubin", "Larry Page & Sergey Brin", "Sundar Pichai"), 1))
+            quizRepository.createQuiz(2, Quiz("What was the initial name of Elon Musk's child?", arrayListOf("X Æ A-Xii", "X AE A-XII", "X Æ A-12"), 3))
+            quizRepository.createQuiz(3, Quiz("In which year was Apple founded?", arrayListOf("1982", "1976", "1993"), 2))
+            quizRepository.createQuiz(4, Quiz("What is Bill Gates' net worth?", arrayListOf("$123.7 billion", "$145.1 billion", "$254.3 billion"), 2))
+            quizRepository.createQuiz(5, Quiz("What was Steve Jobs' cause of death?", arrayListOf("Amyotrophic lateral sclerosis (ALS)", "Dementia", "Neuroendocrine cancer"), 3))
         }
     }
 
-    // Retrieve a quiz from Firestore.
-    fun getQuiz(document: String) {
+    // Retrieve the quizzes from Firestore.
+    fun getQuizzes() {
         viewModelScope.launch {
-            try {
-                quizRepository.getQuiz(document)
-            } catch (ex: QuizRepository.QuizRetrievalError) {
-                val errorMsg = "Something went wrong while retrieving quiz."
-                Log.e(TAG, ex.message ?: errorMsg)
-                _errorText.value = errorMsg
-            }
+            quizRepository.getQuizzes()
         }
-    }
-
-    // Check if the selected answer is equal to the correct answer.
-    fun correctAnswer(answer: String): Boolean {
-        return quiz.value?.correctAnswer.equals(answer, ignoreCase = true)
     }
 }

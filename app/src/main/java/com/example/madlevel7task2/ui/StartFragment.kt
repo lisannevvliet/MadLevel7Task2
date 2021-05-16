@@ -32,32 +32,24 @@ class StartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        createQuizzes()
-        observeQuizCreation()
+        // Delete the previously created quizzes and create new ones.
+        viewModel.createQuizzes()
 
-        // Navigate to the QuizFragment upon a click on the "Start quest" button.
+        // Display a Toast message if the quizzes were not successfully created.
+        viewModel.exception.observe(viewLifecycleOwner, { Toast.makeText(activity, it, Toast.LENGTH_LONG).show() })
+
+        // Put the quizzes in the corresponding LiveData and navigate to the QuizFragment upon a click on the "Start quest" button.
         binding.btnStart.setOnClickListener {
+            viewModel.getQuizzes()
+
             findNavController().navigate(R.id.action_StartFragment_to_QuizFragment)
         }
     }
 
-    // Create five quizzes.
-    private fun createQuizzes() {
-        viewModel.createQuiz("1", "Who is the co-founder of Android?", "Andy Rubin", "Larry Page & Sergey Brin", "Sundar Pichai", "Andy Rubin")
-        viewModel.createQuiz("2", "What was the initial name of Elon Musk's child?", "X Æ A-Xii", "X AE A-XII", "X Æ A-12", "X Æ A-12")
-        viewModel.createQuiz("3", "In which year was Apple founded?", "1982", "1976", "1993", "1976")
-        viewModel.createQuiz("4", "What is Bill Gates' net worth?", "$123.7 billion", "$145.1 billion", "$254.3 billion", "$145.1 billion")
-        viewModel.createQuiz("5", "What was Steve Jobs' cause of death?", "Amyotrophic lateral sclerosis (ALS)", "Dementia", "Neuroendocrine cancer", "Neuroendocrine cancer")
-    }
+    // Release the view if the fragment is destroyed to prevent a memory leak.
+    override fun onDestroyView() {
+        super.onDestroyView()
 
-    // Display a Toast message if the quiz was not successfully created.
-    private fun observeQuizCreation() {
-        viewModel.createSuccess.observe(viewLifecycleOwner, {
-            // Toast.makeText(activity, "Quizzes created", Toast.LENGTH_LONG).show()
-        })
-
-        viewModel.errorText.observe(viewLifecycleOwner, {
-            Toast.makeText(activity, it, Toast.LENGTH_SHORT).show()
-        })
+        _binding = null
     }
 }
