@@ -66,16 +66,16 @@ class QuizFragment : Fragment() {
     private fun onConfirm() {
         // Check if any RadioButton is selected.
         if (binding.rgAnswers.checkedRadioButtonId != -1) {
-            // Check if there is a next question.
-            if (index < quizzes.size) {
-                val answer = when {
-                    binding.rbFirstAnswer.isChecked -> { 1 }
-                    binding.rbSecondAnswer.isChecked -> { 2 }
-                    else -> { 3 }
-                }
+            val answer = when {
+                binding.rbFirstAnswer.isChecked -> { 1 }
+                binding.rbSecondAnswer.isChecked -> { 2 }
+                else -> { 3 }
+            }
 
-                // Check if the selected answer is equal to the correct answer.
-                if (answer == quiz.correctAnswer) {
+            // Check if the selected answer is equal to the correct answer.
+            if (answer == quiz.correctAnswer) {
+                // Check if there is a next question.
+                if (index < quizzes.size) {
                     // Deselect the previously selected RadioButton.
                     binding.rgAnswers.clearCheck()
 
@@ -85,14 +85,14 @@ class QuizFragment : Fragment() {
                     // Show the next quiz.
                     updateView()
                 } else {
-                    // Deselect the previously selected RadioButton.
-                    binding.rgAnswers.clearCheck()
-
-                    Toast.makeText(context, "Wrong Answer", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Quiz Completed", Toast.LENGTH_SHORT).show()
+                    findNavController().popBackStack()
                 }
             } else {
-                Toast.makeText(context, "Quiz Completed", Toast.LENGTH_SHORT).show()
-                findNavController().popBackStack()
+                // Deselect the previously selected RadioButton.
+                binding.rgAnswers.clearCheck()
+
+                Toast.makeText(context, "Wrong Answer", Toast.LENGTH_SHORT).show()
             }
         }
     }
